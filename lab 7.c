@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 struct humen {
     char name[50];
@@ -8,32 +9,52 @@ struct humen {
 
 int main(void) {
 
-    struct humen people[4], sorted[4];
+    FILE *file = fopen("input.txt", "r");
+    if (!file) return 1;
 
-    for (int i = 0; i < 4; i++) {
-        printf("Введите имя, фамилию и год рождения человека %d: ", i + 1);
-        scanf("%49s %49s %d", people[i].name, people[i].surname, &people[i].year);
+    struct humen temp;
+    int count = 0;
+
+    while (fscanf(file, "%49s %49s %d", temp.name, temp.surname, &temp.year) == 3) {
+        count++;
     }
 
-    for (int i = 0; i < 4; i++) {
-        sorted[i] = people[i];
+    struct humen *people = malloc(count * sizeof(struct humen));
+    if (!people) {
+        fclose(file);
+        return 1;
     }
 
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3 - i; j++) {
-            if (sorted[j].year > sorted[j + 1].year) {
-                struct humen tmp = sorted[j];
-                sorted[j] = sorted[j + 1];
-                sorted[j + 1] = tmp;
+    rewind(file);
+
+    for (int i = 0; i < count; i++) {
+        fscanf(file, "%49s %49s %d",
+               people[i].name,
+               people[i].surname,
+               &people[i].year);
+    }
+
+    fclose(file);
+
+    for (int i = 0; i < count - 1; i++) {
+        for (int j = 0; j < count - 1 - i; j++) {
+            if (people[j].year > people[j + 1].year) {
+                struct humen tmp = people[j];
+                people[j] = people[j + 1];
+                people[j + 1] = tmp;
             }
         }
     }
 
-    printf("\nОтсортированный массив по году рождения:\n");
     printf("%-15s %-15s %s\n", "Имя", "Фамилия", "Год");
-    for (int i = 0; i < 4; i++) {
-        printf("%-15s %-15s %d\n", sorted[i].name, sorted[i].surname, sorted[i].year);
+
+    for (int i = 0; i < count; i++) {
+        printf("%-15s %-15s %d\n",
+               people[i].name,
+               people[i].surname,
+               people[i].year);
     }
 
+    free(people);
     return 0;
 }
