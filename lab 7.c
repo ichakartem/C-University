@@ -57,4 +57,5 @@ int main(void) {
 
     free(people);
     return 0;
+    
 }
